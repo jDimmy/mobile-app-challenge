@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model land_operator {
+  id       Int      @id @default(autoincrement())
+  username String   @db.VarChar(45)
+  email    String   @db.VarChar(45)
+  pwd      String   @db.VarChar(45)
+  report   report[]
+}
+
+model land_owner {
+  id        Int         @id @default(autoincrement())
+  username  String      @db.VarChar(45)
+  email     String      @db.VarChar(45)
+  pwd       String      @db.VarChar(45)
+  land_plot land_plot[]
+}
+
+model land_plot {
+  id          Int        @id @default(autoincrement())
+  plot_name   String     @db.VarChar(45)
+  photo       String     @db.VarChar(45)
+  area        Float
+  latitude    Float
+  longitude   Float
+  land_own_id Int
+  land_owner  land_owner @relation(fields: [land_own_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "land_plot_ibfk_1")
+  report      report[]
+
+  @@index([land_own_id], map: "land_own_id")
+}
+
+model report {
+  id            Int           @id @default(autoincrement())
+  created_at    DateTime      @db.Date
+  land_op_id    Int
+  land_plot_id  Int
+  land_operator land_operator @relation(fields: [land_op_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_1")
+  land_plot     land_plot     @relation(fields: [land_plot_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
+
+  @@index([land_op_id], map: "land_op_id")
+  @@index([land_plot_id], map: "land_plot_id")
+}
